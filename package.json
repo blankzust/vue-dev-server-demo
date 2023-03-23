@@ -1,0 +1,22 @@
+{
+  "name": "vue-dev-server-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node ./server/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/parser": "^7.21.3",
+    "@babel/traverse": "^7.21.3",
+    "express": "^4.18.2",
+    "magic-string": "^0.30.0",
+    "parse5": "^7.1.2",
+    "validate-npm-package-name": "^5.0.0",
+    "vue": "^3.2.47"
+  }
+}
