@@ -8,12 +8,13 @@ const parse5 = require('parse5');
 const { parse } = require('@babel/parser');
 const traverse = require('@babel/traverse').default;
 const { default: MagicString } = require('magic-string');
-const isPkg = require('validate-npm-package-name')
+
+const { assemble } = require('@vue/component-compiler');
+const { compile } = require('vue-template-compiler')
 
 
 async function readSource(reqFilePath) {
   const filepath = path.join(root, reqFilePath.replace(/^\//, ''))
-  // console.log(await readFile(filepath, 'utf-8'), 'filepath')
   return {
     filepath,
     source: await readFile(filepath, 'utf-8'),
@@ -51,7 +52,6 @@ function addPrefixBeforeImportInJs(jsSrc) {
           const source = path.node.source;
           const importStart = source.start + 1;
           const importEnd = source.end - 1 ;
-          console.log(source.value);
           if (importEnd > importStart && isDependency(source.value)) {
             code.overwrite(importStart, importEnd, `/__modules/${source.value}`);
           }
@@ -79,7 +79,41 @@ function addPrefixBeforeImportInHtml(htmlSrc) {
   return parse5.serialize(document);
 }
 
+// 加载依赖的esm版本代码
+async function loadPkg(pkgName) {
+  if (pkgName === 'vue') {
+    const res = await readSource('/../node_modules/vue/dist/vue.esm.browser.min.js');
+    return res;
+  } else {
+  }
+}
+
+const vueCompiler = require('@vue/component-compiler');
+const compiler = vueCompiler.createDefaultCompiler()
+
+async function loadVue(reqFilePath) {
+  const { filepath, source } = await readSource(reqFilePath)
+  const descriptorResult = compiler.compileToDescriptor(filepath, source)
+  const assembledResult = vueCompiler.assemble(compiler, filepath, {
+    ...descriptorResult,
+  })
+  return { source: assembledResult.code }
+}
+
+async function bundleSFC(req) {
+  const { filepath, source, updateTime } = await readSource(req)
+  const descriptorResult = compiler.compileToDescriptor(filepath, source)
+  const assembledResult = vueCompiler.assemble(compiler, filepath, {
+    ...descriptorResult,
+    script: injectSourceMapToScript(descriptorResult.script),
+    styles: injectSourceMapsToStyles(descriptorResult.styles)
+  })
+  return { ...assembledResult, updateTime }
+}
+
 module.exports.readSource = readSource
 module.exports.findScriptTagsInHtml = findScriptTagsInHtml;
 module.exports.addPrefixBeforeImportInJs = addPrefixBeforeImportInJs;
 module.exports.addPrefixBeforeImportInHtml = addPrefixBeforeImportInHtml;
+module.exports.loadPkg = loadPkg;
+module.exports.loadVue = loadVue;

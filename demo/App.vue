@@ -14,6 +14,6 @@ export default {
 
 <style scoped>
 div {
-  color: red;
+  color: blue;
 }
 </style>
