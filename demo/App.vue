@@ -3,6 +3,9 @@
 </template>
 
 <script>
+import { test } from './test.js';
+
+test();
 export default {
   data() {
     return {

@@ -32,6 +32,19 @@ function findScriptTagsInHtml(node, scriptTags = []) {
   }
 }
 
+function findModuleScriptContentsInHtml(htmlPath) {
+  try {
+    const htmlSrc = fs.readFileSync(htmlPath, 'utf-8');
+    console.log(htmlSrc, 'htmlSrc')
+    const document = parse5.parse(htmlSrc);
+    const scriptTags = [];
+    findScriptTagsInHtml(document, scriptTags);
+    return scriptTags.map(item => item.childNodes[0].value)
+  } catch (err) {
+    console.error('error when read entry html file:', err);
+  }
+}
+
 function isDependency(str) {
   return !str.startsWith('.') && !str.startsWith('/') && !str.startsWith('http') && !str.startsWith('https');
 }
@@ -81,11 +94,8 @@ function addPrefixBeforeImportInHtml(htmlSrc) {
 
 // 加载依赖的esm版本代码
 async function loadPkg(pkgName) {
-  if (pkgName === 'vue') {
-    const res = await readSource('/../node_modules/vue/dist/vue.esm.browser.min.js');
-    return res;
-  } else {
-  }
+  const res = await readSource(`/../node_modules/__m-vite/${pkgName}.js`)
+  return res;
 }
 
 const vueCompiler = require('@vue/component-compiler');
@@ -100,18 +110,8 @@ async function loadVue(reqFilePath) {
   return { source: assembledResult.code }
 }
 
-async function bundleSFC(req) {
-  const { filepath, source, updateTime } = await readSource(req)
-  const descriptorResult = compiler.compileToDescriptor(filepath, source)
-  const assembledResult = vueCompiler.assemble(compiler, filepath, {
-    ...descriptorResult,
-    script: injectSourceMapToScript(descriptorResult.script),
-    styles: injectSourceMapsToStyles(descriptorResult.styles)
-  })
-  return { ...assembledResult, updateTime }
-}
-
 module.exports.readSource = readSource
+module.exports.findModuleScriptContentsInHtml = findModuleScriptContentsInHtml;
 module.exports.findScriptTagsInHtml = findScriptTagsInHtml;
 module.exports.addPrefixBeforeImportInJs = addPrefixBeforeImportInJs;
 module.exports.addPrefixBeforeImportInHtml = addPrefixBeforeImportInHtml;
