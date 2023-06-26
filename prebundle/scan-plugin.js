@@ -68,10 +68,10 @@ const scanPlugin = (deps) => {
             ) {
               continue
             }
-            let loader = 'js'
-            if (lang === 'ts' || lang === 'tsx' || lang === 'jsx') {
-              loader = lang
-            }
+            // let loader = 'js'
+            // if (lang === 'ts' || lang === 'tsx' || lang === 'jsx') {
+            //   loader = lang
+            // }
             const srcMatch = openTag.match(srcRE)
             if (srcMatch) {
               const src = srcMatch[1] || srcMatch[2] || srcMatch[3]

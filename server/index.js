@@ -7,12 +7,20 @@ const app = express()
 const root = process.cwd();
 const path = require('path');
 const prebundle = require('../prebundle');
+const { loadConfigFromFile } = require('./config');
 
-app.use(vueMiddleware())
+async function start() {
+  app.use(vueMiddleware())
 
-app.use(express.static(path.join(root, './demo')))
+  app.use(express.static(path.join(root, './demo')))
 
-app.listen(3003, async () => {
-  await prebundle(path.join(root, './demo'));
-  console.log('server running at http://localhost:3003')
-})
+  const config = await loadConfigFromFile();
+  console.log(config.plugins, 'config')
+
+  app.listen(3003, async () => {
+    await prebundle(path.join(root, './demo'));
+    console.log('server running at http://localhost:3003')
+  })
+}
+
+start();
