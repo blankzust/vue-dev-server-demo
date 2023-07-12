@@ -77,7 +77,6 @@ async function bundleConfigFile(fileName, isESM, configRoot = process.cwd()) {
               const exports = pkgData.exports;
               Object.keys(exports).forEach(exportKey => {
                 if (path.resolve(modulePath, exportKey) === modulePath) {
-                  console.log(path.resolve(modulePath, exports[exportKey].import), 'skjhj')
                   id = pathToFileURL(path.resolve(modulePath, exports[exportKey].import)).href;
                 }
               })

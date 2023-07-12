@@ -2,7 +2,7 @@ const path = require('path');
 const esbuild = require('esbuild');
 const scanPlugin = require('./scan-plugin');
 
-module.exports = async (root) => {
+module.exports = async (root, container) => {
   // 1.确定入口
   // 这里暂时约定为/demo/index.html
   const entryHtml = path.resolve(root, './index.html');
@@ -20,7 +20,7 @@ module.exports = async (root) => {
     bundle: true,
     format: 'esm',
     write: false, // 不用输出文件，只做扫描
-    plugins: [scanPlugin(deps)],
+    plugins: [scanPlugin(deps, container)],
     preserveSymlinks: false
   })
   console.log(

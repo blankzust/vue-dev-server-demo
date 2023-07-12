@@ -19,7 +19,31 @@ const typeRE = /\btype\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s'">]+))/i;
 // 匹配<script src='xxx' />中的src属性
 const srcRE = /\bsrc\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s'">]+))/i;
 
-const scanPlugin = (deps) => {
+const scanPlugin = (deps, container) => {
+  const seen = new Map()
+
+  const resolve = async (
+    id,
+    importer,
+    options = {},
+  ) => {
+    const key = id + (importer && path.dirname(importer))
+    if (seen.has(key)) {
+      return seen.get(key)
+    }
+    const resolved = await container.resolveId(
+      id,
+      importer && normalizePath(importer),
+      {
+        ...options,
+        scan: true,
+      },
+    )
+    const res = resolved?.id
+    seen.set(key, res)
+    console.log(res, 'resolveId Res')
+    return res
+  }
   return {
     name: 'm-vite:scan-deps-plugin',
     setup(build) {
@@ -28,7 +52,6 @@ const scanPlugin = (deps) => {
         { filter: htmlTypesRE },
         (resolveInfo) => {
           const { path, importer } = resolveInfo;
-          console.log(resolveInfo, 'path')
           // 判断路由是否为相对路径./或者../
           const isAbsolutePath = path.startsWith('./') || path.startsWith('../')
           return {
@@ -119,8 +142,20 @@ const scanPlugin = (deps) => {
       // 记录每一次 import
       build.onResolve(
         { filter: BARE_IMPORT_RE },
-        (resolveInfo) => {
+        async (resolveInfo) => {
           const { path: id } = resolveInfo;
+          const resolveId = await resolve(id);
+          console.log(resolveId?.id, 'after resolve');
+          if (resolveId && resolveId !== id) {
+            console.log("checked")
+            if (BARE_IMPORT_RE.test(resolveId)) {
+              deps.add(resolveId);
+            }
+            return {
+              path: resolveId,
+              external: true
+            }
+          }
           // 依赖推入 deps 集合中
           deps.add(id);
           return {
