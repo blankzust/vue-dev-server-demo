@@ -12,11 +12,12 @@ const { createPluginContainer } = require('../plugin/plugin-container');
 async function start() {
   const app = express()
 
-  app.use(express.static(path.join(root, './demo')))
-
   const config = await loadConfigFromFile();
   const container = await createPluginContainer(config);
+
   app.use(vueMiddleware({}, container))
+  app.use(express.static(path.join(root, './demo')))
+  
 
   container.configureServer(app);
 
@@ -24,7 +25,7 @@ async function start() {
     container.buildStart();
     await prebundle(path.join(root, './demo'), container);
     console.log('server running at http://localhost:3003')
-  })
+  })  
 }
 
 start();

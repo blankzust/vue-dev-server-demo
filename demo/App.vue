@@ -4,7 +4,7 @@
 
 <script>
 import { test } from './test.js';
-import test11 from 'test:module'
+// import test11 from 'test:module'
 
 test();
 export default {

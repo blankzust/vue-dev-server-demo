@@ -7,6 +7,8 @@ const {
   loadVue
 } = require('./source');
 
+const typescript = require('typescript/lib/');
+
 function send(res, source, mime) {
   res.setHeader('Content-Type', mime)
   res.end(source)
@@ -15,10 +17,10 @@ function send(res, source, mime) {
 const vueMiddleware = (options, container) => {
   return async (req, res, next) => {
     let id = req.path;
-    const resolve = container.resolveId(req.path);
-    if (resolve.id) {
-      id = resolve.id;
-    }
+    // const resolve = container.resolveId(req.path);
+    // if (resolve.id) {
+    //   id = resolve.id;
+    // }
     console.log(id, 'id')
     if (id.endsWith('.js')) {
       // js相关
@@ -29,6 +31,7 @@ const vueMiddleware = (options, container) => {
       // html相关
       const { source } = await readSource(req.path === '/' ? 'index.html' : req.path);
       const newHtmlContent = addPrefixBeforeImportInHtml(source);
+      console.log(newHtmlContent)
       send(res, newHtmlContent, 'text/html');
     } else if (id.startsWith('/__modules/')) {
        // 读取路径对应的node_modules对应的esm文件路径
@@ -38,6 +41,11 @@ const vueMiddleware = (options, container) => {
       send(res, source, 'application/javascript')
     } else if (id.endsWith('.vue')) {
       const { source } = await loadVue(id)
+      send(res, source, 'application/javascript')
+    } else if (id.endsWith('.ts')) {
+      const { source } = await readSource(req.path);
+      // const js = typescript(source);
+      // console.log(js)
       send(res, source, 'application/javascript')
     } else {
       next();

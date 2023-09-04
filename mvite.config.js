@@ -18,17 +18,17 @@ export default defineConfig({
   },
   plugins: [
     vue(),
-    {
-      name: 'test-plugin3',
-      resolveId: {
-        handler: (id) => {
-          if (id === 'test:module') {
-            // console.log(id, 'resolveId钩子')
-            return { id: 'react' }
-          }
-        }
-      }
-    },
+    // {
+    //   name: 'test-plugin3',
+    //   resolveId: {
+    //     handler: (id) => {
+    //       if (id === 'test:module') {
+    //         // console.log(id, 'resolveId钩子')
+    //         return { id: 'react' }
+    //       }
+    //     }
+    //   }
+    // },
     // {
     //   name: 'test-plugin1',
     //   resolveId: {

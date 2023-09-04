@@ -142,20 +142,21 @@ const scanPlugin = (deps, container) => {
       // 记录每一次 import
       build.onResolve(
         { filter: BARE_IMPORT_RE },
-        async (resolveInfo) => {
+        (resolveInfo) => {
           const { path: id } = resolveInfo;
-          const resolveId = await resolve(id);
-          console.log(resolveId?.id, 'after resolve');
-          if (resolveId && resolveId !== id) {
-            console.log("checked")
-            if (BARE_IMPORT_RE.test(resolveId)) {
-              deps.add(resolveId);
-            }
-            return {
-              path: resolveId,
-              external: true
-            }
-          }
+          // const resolveId = await resolve(id) || id;
+          // // const resolveId = id;
+          // console.log(resolveId, 'after resolve');
+          // if (resolveId && resolveId !== id) {
+          //   console.log("checked")
+          //   if (BARE_IMPORT_RE.test(resolveId)) {
+          //     deps.add(resolveId);
+          //   }
+          //   return {
+          //     path: resolveId,
+          //     external: true
+          //   }
+          // }
           // 依赖推入 deps 集合中
           deps.add(id);
           return {
